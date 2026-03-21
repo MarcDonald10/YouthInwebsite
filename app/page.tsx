@@ -19,6 +19,8 @@ const G = `
   @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   @keyframes barIn{from{transform:scaleX(0)}to{transform:scaleX(1)}}
   @keyframes borderRun{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+  @keyframes heroPulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.85;transform:scale(1.12)}}
+  @keyframes heroFloatSlow{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
   .fd{font-family:'Clash Display',sans-serif}
   .h1{animation:heroReveal 1s cubic-bezier(.16,1,.3,1) .08s both}
   .h2{animation:heroReveal 1s cubic-bezier(.16,1,.3,1) .2s both}
@@ -35,6 +37,10 @@ const G = `
   .cg:hover{box-shadow:0 0 0 1px rgba(220,247,99,.14),0 24px 80px rgba(0,0,0,.7)}
   .bar{transform-origin:left;animation:barIn 1s cubic-bezier(.16,1,.3,1) var(--d,0s) both}
   .lborder{background:linear-gradient(#030303,#030303) padding-box,linear-gradient(90deg,#DCF763,rgba(220,247,99,.2),#DCF763) border-box;border:1px solid transparent;background-size:200% 100%;animation:borderRun 3s linear infinite}
+  .heroPanel{background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.018));border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 60px rgba(0,0,0,.45)}
+  .heroChip{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);backdrop-filter:blur(4px)}
+  .heroOrb{animation:heroPulse 4.2s ease-in-out infinite}
+  .heroSoftFloat{animation:heroFloatSlow 6.4s ease-in-out infinite}
 `
 
 function NetCanvas() {
@@ -45,7 +51,8 @@ function NetCanvas() {
     const sz = () => { c.width = c.offsetWidth; c.height = c.offsetHeight }
     sz(); window.addEventListener('resize', sz)
     const mx = { x: -999, y: -999 }
-    c.addEventListener('mousemove', e => { const r = c.getBoundingClientRect(); mx.x = e.clientX - r.left; mx.y = e.clientY - r.top })
+    const onMove = (e: MouseEvent) => { const r = c.getBoundingClientRect(); mx.x = e.clientX - r.left; mx.y = e.clientY - r.top }
+    c.addEventListener('mousemove', onMove)
     const N = 60
     const P = Array.from({ length: N }, () => ({ x: Math.random() * c.width, y: Math.random() * c.height, vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35, r: Math.random() * 1.6 + .5 }))
     let af: number
@@ -57,7 +64,7 @@ function NetCanvas() {
       }
       for (const p of P) {
         const dx = mx.x-p.x, dy = mx.y-p.y, d = Math.hypot(dx,dy)
-        if (d<150) { p.vx+=(dx/d)*.013; p.vy+=(dy/d)*.013 }
+        if (d>0 && d<150) { p.vx+=(dx/d)*.013; p.vy+=(dy/d)*.013 }
         const sp=Math.hypot(p.vx,p.vy); if(sp>1.1){p.vx*=.94;p.vy*=.94}
         p.x+=p.vx; p.y+=p.vy
         if(p.x<0||p.x>c.width) p.vx*=-1
@@ -67,9 +74,45 @@ function NetCanvas() {
       af = requestAnimationFrame(draw)
     }
     draw()
-    return () => { cancelAnimationFrame(af); window.removeEventListener('resize', sz) }
+    return () => { cancelAnimationFrame(af); window.removeEventListener('resize', sz); c.removeEventListener('mousemove', onMove) }
   }, [])
   return <canvas ref={ref} className="absolute inset-0 w-full h-full pointer-events-none opacity-55" />
+}
+
+function useReducedMotion() {
+  const [reducedMotion, setReducedMotion] = useState(false)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => setReducedMotion(mediaQuery.matches)
+
+    update()
+    mediaQuery.addEventListener('change', update)
+
+    return () => {
+      mediaQuery.removeEventListener('change', update)
+    }
+  }, [])
+
+  return reducedMotion
+}
+
+function useCoarsePointer() {
+  const [coarsePointer, setCoarsePointer] = useState(false)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(hover: none), (pointer: coarse)')
+    const update = () => setCoarsePointer(mediaQuery.matches)
+
+    update()
+    mediaQuery.addEventListener('change', update)
+
+    return () => {
+      mediaQuery.removeEventListener('change', update)
+    }
+  }, [])
+
+  return coarsePointer
 }
 
 function Cursor() {
@@ -179,7 +222,7 @@ const TRUST = [
 const FAQ_DATA = [
   {q:'YouthIn est-il gratuit ?',a:"L'app est entièrement gratuite. Les sessions mentor sont payantes (tarif fixé par le mentor). La soumission au concours est gratuite. Les votes sur le site coûtent 75 FCFA. Dans l'app, le vote est gratuit pour les membres vérifiés."},
   {q:'Comment fonctionne le YouthIn Index™ ?',a:"Score de 0 à 1000 pts sur 4 piliers : Régularité (20%), Résultats (40%), Réseau (15%) et Réputation (25%). Le score monte avec chaque action concrète — milestone validé, session mentor, participation concours, engagement communautaire."},
-  {q:'Qui peut participer au concours ?',a:'Tout jeune de 18 à 35 ans de nationalité camerounaise ou résidant légalement au Cameroun, avec un compte YouthIn vérifié. 1 seul projet par participant. La soumission est gratuite.'},
+  {q:'Qui peut participer au concours ?',a:'Tout jeune de 18 à 28 ans de nationalité camerounaise ou résidant légalement au Cameroun, avec un compte YouthIn vérifié. 1 seul projet par participant. La soumission est gratuite.'},
   {q:"Qu'est-ce qu'un Village™ ?",a:"Un Village™ est un espace communautaire structuré avec chat, fil d'actu, événements et détection de talents. Il y a 4 types : National, Ville, Quartier et Secteur. Chaque Village™ a ses propres activités et rencontres physiques mensuelles."},
   {q:'Comment le YouthIn Index™ est reconnu par les banques ?',a:'Les membres Platinum et Elite peuvent générer un rapport PDF officiel avec QR code de vérification. Ce rapport est transmissible aux banques partenaires qui acceptent comme preuve de crédibilité entrepreneuriale sans collatéral.'},
   {q:"Comment rejoindre l'équipe YouthIn ?",a:'YouthIn recrute des ambassadeurs dans chaque ville. Les membres Elite avec un fort engagement sont prioritairement approchés. Contactez-nous via careers@youthin.cm'},
@@ -190,11 +233,22 @@ const MQ = ['🇨🇲 Cameroun','🏆 3 750 000 FCFA','⚡ YouthIn Index™','�
 export default function Home() {
   useReveal()
   const [openFaq,setOpenFaq]=useState<number|null>(null)
+  const reducedMotion = useReducedMotion()
+  const coarsePointer = useCoarsePointer()
+  const customCursorEnabled = !reducedMotion && !coarsePointer
 
   return (
-    <main className="min-h-screen text-white overflow-x-hidden" style={{backgroundColor:'#030303',cursor:'none',fontFamily:"'DM Sans',sans-serif"}}>
-      <style>{G}</style>
-      <Cursor />
+    <main className="min-h-screen text-white overflow-x-hidden" style={{backgroundColor:'#030303',cursor:customCursorEnabled?'none':'auto',fontFamily:"'DM Sans',sans-serif"}}>
+      <style>{`${G}
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after { animation: none !important; transition: none !important; }
+          .rv { opacity: 1 !important; transform: none !important; }
+        }
+        @media (hover: none), (pointer: coarse) {
+          .cd, .cr { display: none !important; }
+        }
+      `}</style>
+      {customCursorEnabled && <Cursor />}
       <Header />
 
       {/* === 1. HERO === */}
@@ -202,37 +256,52 @@ export default function Home() {
         <NetCanvas />
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute left-0 right-0 h-px" style={{background:'rgba(220,247,99,.06)',animation:'scanline 9s linear infinite'}} />
+          <div className="absolute top-24 left-[14%] w-52 h-52 rounded-full blur-[90px] heroOrb" style={{background:'rgba(220,247,99,.08)'}} />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px]" style={{background:'radial-gradient(ellipse,rgba(220,247,99,.055) 0%,transparent 65%)'}} />
           <div className="absolute bottom-0 right-0 w-[500px] h-[500px]" style={{background:'radial-gradient(ellipse at 100% 100%,rgba(139,92,246,.05) 0%,transparent 60%)'}} />
+          <div className="absolute -bottom-10 left-[8%] w-[420px] h-[420px] rounded-full blur-[120px]" style={{background:'radial-gradient(circle,rgba(245,158,11,.07),transparent 70%)'}} />
           <div className="absolute inset-0 opacity-[.026]" style={{backgroundImage:'linear-gradient(rgba(220,247,99,1) 1px,transparent 1px),linear-gradient(90deg,rgba(220,247,99,1) 1px,transparent 1px)',backgroundSize:'72px 72px'}} />
           <div className="absolute inset-0" style={{background:'radial-gradient(ellipse 80% 80% at 50% 50%,transparent 40%,rgba(3,3,3,.75) 100%)'}} />
         </div>
         <div className="relative max-w-7xl mx-auto w-full">
           <div className="grid lg:grid-cols-[1fr_430px] gap-20 items-center">
             <div>
-              <div className="hs inline-flex items-center gap-3 mb-10 border border-zinc-800/70 rounded-full px-5 py-2.5 backdrop-blur-sm" style={{background:'rgba(255,255,255,.025)'}}>
+              <div className="hs inline-flex items-center gap-3 mb-8 border border-zinc-800/70 rounded-full px-5 py-2.5 backdrop-blur-sm" style={{background:'rgba(255,255,255,.025)'}}>
                 <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" /></span>
                 <span className="text-zinc-500 text-sm">Concours 2026 · <span className="text-emerald-400 font-medium">Phase Vote en cours</span></span>
               </div>
-              <div className="mb-8">
-                <div className="h1 fd" style={{fontSize:'clamp(54px,8vw,108px)',fontWeight:700,lineHeight:.88,letterSpacing:'-.03em',color:'#fff'}}>L'entrepreneuriat,</div>
-                <div className="h2 fd sy" style={{fontSize:'clamp(54px,8vw,108px)',fontWeight:700,lineHeight:.88,letterSpacing:'-.03em',marginTop:'.07em'}}>c'est pour toi.</div>
+              <div className="mb-7">
+                <h1 className="h1 fd" style={{fontSize:'clamp(54px,8vw,108px)',fontWeight:700,lineHeight:.88,letterSpacing:'-.03em',color:'#fff'}}>
+                  L'entrepreneuriat,
+                  <span className="h2 sy block" style={{marginTop:'.07em'}}>c'est pour toi.</span>
+                </h1>
               </div>
               <div className="hs">
-                <p className="text-xl text-zinc-400 leading-relaxed mb-2 max-w-lg" style={{fontWeight:300}}>La première plateforme qui transforme les jeunes Camerounais de 18 à 35 ans en entrepreneurs accomplis.</p>
-                <p className="text-sm text-zinc-600 mb-10 tracking-wide">Concours · Mentor Market · YouthIn Index™ · Villages™</p>
+                <p className="text-xl text-zinc-300 leading-relaxed mb-3 max-w-xl" style={{fontWeight:300}}>La première plateforme qui transforme les jeunes Camerounais de 18 à 28 ans en entrepreneurs accomplis.</p>
+                <p className="text-sm text-zinc-500 mb-10 tracking-wide">Concours · Mentor Market · YouthIn Index™ · Villages™</p>
               </div>
               <div className="hc flex flex-wrap gap-4 mb-14">
-                <Link href="/soumettre">
-                  <button className="group relative flex items-center gap-3 fd font-semibold text-black text-base px-9 py-4 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.03]" style={{background:'#DCF763',animation:'pulseBtn 3.5s ease-in-out infinite 2s'}}>
-                    <span className="relative z-10">Soumettre un projet</span>
-                    <ArrowRight size={18} className="relative z-10 group-hover:translate-x-1 transition-transform" />
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent)',animation:'shimmer 1.4s linear infinite'}} />
-                  </button>
+                <Link
+                  href="/soumettre"
+                  className="group relative flex items-center gap-3 fd font-semibold text-black text-base px-9 py-4 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_60px_rgba(220,247,99,.35)]"
+                  style={{background:'#DCF763',animation:'pulseBtn 3.5s ease-in-out infinite 2s'}}
+                >
+                  <span className="relative z-10">Soumettre un projet</span>
+                  <ArrowRight size={18} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent)',animation:'shimmer 1.4s linear infinite'}} />
                 </Link>
-                <Link href="/voter">
-                  <button className="flex items-center gap-2 text-zinc-400 font-medium text-base px-8 py-4 rounded-2xl border border-zinc-800 hover:border-zinc-600 hover:text-white transition-all">Voter pour un projet</button>
-                </Link>
+                <Link href="/voter" className="flex items-center gap-2 text-zinc-300 font-medium text-base px-8 py-4 rounded-2xl border border-zinc-700/90 bg-zinc-900/45 hover:border-zinc-500 hover:text-white transition-all">Voter pour un projet</Link>
+              </div>
+              <div className="hs flex flex-wrap gap-2.5 mb-12">
+                {[
+                  '⚡ Accès gratuit à l’app',
+                  '🏆 Finale nationale à Douala',
+                  '🤝 Mentors vérifiés',
+                ].map((chip) => (
+                  <span key={chip} className="heroChip rounded-full px-3.5 py-1.5 text-xs text-zinc-300 tracking-wide">
+                    {chip}
+                  </span>
+                ))}
               </div>
               <div className="hp flex items-center gap-5">
                 <div className="flex -space-x-2.5">
@@ -247,11 +316,16 @@ export default function Home() {
               </div>
             </div>
             <div className="hidden lg:block" style={{animation:'fadeUp 1s ease .9s both'}}>
-              <div className="relative" style={{animation:'floatCard 6s ease-in-out infinite 1s'}}>
+              <div className="relative heroSoftFloat" style={{animationDelay:'1s'}}>
                 <div className="absolute inset-0 rounded-3xl blur-[70px] scale-110 pointer-events-none" style={{background:'rgba(220,247,99,.07)'}} />
-                <div className="relative rounded-3xl border overflow-hidden" style={{background:'rgba(255,255,255,.03)',borderColor:'rgba(220,247,99,.1)'}}>
+                <div className="absolute -inset-px rounded-3xl pointer-events-none" style={{background:'linear-gradient(120deg,rgba(220,247,99,.35),rgba(220,247,99,0),rgba(139,92,246,.34))',opacity:.38}} />
+                <div className="relative rounded-3xl overflow-hidden heroPanel">
+                  <div className="px-4 py-3 border-b flex items-center justify-between" style={{borderColor:'rgba(255,255,255,.08)'}}>
+                    <span className="text-[10px] uppercase tracking-[3px] font-black" style={{color:'rgba(220,247,99,.68)'}}>Dashboard Live</span>
+                    <span className="text-[10px] text-zinc-500">Douala · Yaoundé</span>
+                  </div>
                   <div className="aspect-[4/3] relative">
-                    <Image src="/hero-1.jpg" alt="YouthIn" fill className="object-cover opacity-45" priority />
+                    <Image src="/hero-1.jpg" alt="Jeunes entrepreneurs YouthIn" fill className="object-cover opacity-50" priority />
                     <div className="absolute inset-0" style={{background:'linear-gradient(to top,rgba(3,3,3,1) 0%,rgba(3,3,3,.25) 50%,transparent 100%)'}} />
                     <div className="absolute inset-0 pointer-events-none" style={{backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(220,247,99,.012) 2px,rgba(220,247,99,.012) 4px)'}} />
                   </div>
@@ -262,6 +336,15 @@ export default function Home() {
                         <span className="text-xs font-semibold px-2.5 py-1 rounded-lg" style={{color:c,background:`${c}15`,border:`1px solid ${c}25`}}>{d}</span>
                       </div>
                     ))}
+                    <div className="px-4 pt-1.5 pb-2.5 rounded-2xl border" style={{background:'rgba(220,247,99,.04)',borderColor:'rgba(220,247,99,.16)'}}>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-zinc-400 text-xs">Progression concours</p>
+                        <p className="text-[#DCF763] text-xs font-semibold">78%</p>
+                      </div>
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,.08)'}}>
+                        <div className="h-full rounded-full" style={{width:'78%',background:'linear-gradient(90deg,#DCF763,rgba(220,247,99,.45))'}} />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="absolute -top-5 -right-5 rounded-2xl px-4 py-3 shadow-2xl" style={{background:'#DCF763'}}>
@@ -278,14 +361,15 @@ export default function Home() {
         </div>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2" style={{animation:'fadeUp .8s ease 1.3s both'}}>
           <div className="w-px h-12" style={{background:'linear-gradient(to bottom,transparent,rgba(220,247,99,.35),transparent)'}} />
-          <p className="text-zinc-700 text-[10px] tracking-[3px] uppercase">Scroll</p>
+          <p className="text-zinc-600 text-[10px] tracking-[3px] uppercase">Scroll pour découvrir</p>
         </div>
       </section>
 
       {/* === 2. MARQUEE === */}
       <div className="border-y overflow-hidden py-3.5" style={{borderColor:'rgba(220,247,99,.07)'}}>
+        <p className="sr-only">Points clés YouthIn: concours, index de crédibilité, villages communautaires et mentorat.</p>
         <div className="flex whitespace-nowrap">
-          <div className="mq flex gap-12 items-center pr-12">
+          <div className="mq flex gap-12 items-center pr-12" aria-hidden="true">
             {[...MQ,...MQ].map((item,i)=><span key={i} className="text-sm font-semibold tracking-widest" style={{color:i%2===0?'rgba(220,247,99,.7)':'rgba(255,255,255,.18)'}}>{item}</span>)}
           </div>
         </div>
@@ -316,7 +400,7 @@ export default function Home() {
                 <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" /></span>
                 Mise à jour en temps réel
               </div>
-              <Link href="/voter"><button className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-white transition-all">Voir le classement complet <ArrowRight size={14} /></button></Link>
+              <Link href="/voter" className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-white transition-all">Voir le classement complet <ArrowRight size={14} /></Link>
             </div>
           </div>
           <div className="space-y-3 rv" style={{transitionDelay:'.1s'}}>
@@ -446,7 +530,7 @@ export default function Home() {
               <SLabel>Communauté · Villages™</SLabel>
               <h2 className="fd text-white" style={{fontSize:'clamp(36px,5vw,64px)',fontWeight:700,lineHeight:.95,letterSpacing:'-.03em'}}>Ton Village™<br /><span style={{color:'#DCF763'}}>t'attend.</span></h2>
             </div>
-            <Link href="/communaute"><button className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-white transition-all">Explorer tous les Villages™ <ArrowRight size={14} /></button></Link>
+            <Link href="/communaute" className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-white transition-all">Explorer tous les Villages™ <ArrowRight size={14} /></Link>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 rv" style={{transitionDelay:'.1s'}}>
             {VILLAGES_LIVE.map((v,i)=>(
@@ -577,17 +661,22 @@ export default function Home() {
           </div>
           <div className="space-y-3 rv" style={{transitionDelay:'.1s'}}>
             {FAQ_DATA.map((item,i)=>(
-              <div key={i} className="rounded-2xl border overflow-hidden transition-all duration-200 cursor-pointer"
-                style={{background:openFaq===i?'rgba(220,247,99,.04)':'rgba(255,255,255,.025)',borderColor:openFaq===i?'rgba(220,247,99,.2)':'rgba(255,255,255,.07)'}}
-                onClick={()=>setOpenFaq(openFaq===i?null:i)}>
-                <div className="flex items-center justify-between px-6 py-5 gap-4">
+              <div key={i} className="rounded-2xl border overflow-hidden transition-all duration-200"
+                style={{background:openFaq===i?'rgba(220,247,99,.04)':'rgba(255,255,255,.025)',borderColor:openFaq===i?'rgba(220,247,99,.2)':'rgba(255,255,255,.07)'}}>
+                <button
+                  className="w-full text-left flex items-center justify-between px-6 py-5 gap-4"
+                  onClick={()=>setOpenFaq(openFaq===i?null:i)}
+                  aria-expanded={openFaq===i}
+                  aria-controls={`faq-panel-${i}`}
+                  id={`faq-trigger-${i}`}
+                >
                   <p className="fd font-semibold text-white text-sm leading-relaxed">{item.q}</p>
                   <div className="flex-shrink-0 transition-transform duration-300" style={{transform:openFaq===i?'rotate(180deg)':'none'}}>
                     <ChevronDown size={16} color={openFaq===i?'#DCF763':'#666'} />
                   </div>
-                </div>
+                </button>
                 {openFaq===i&&(
-                  <div className="px-6 pb-6 border-t" style={{borderColor:'rgba(220,247,99,.1)'}}>
+                  <div className="px-6 pb-6 border-t" style={{borderColor:'rgba(220,247,99,.1)'}} id={`faq-panel-${i}`} role="region" aria-labelledby={`faq-trigger-${i}`}>
                     <p className="text-zinc-400 text-sm leading-relaxed pt-4" style={{fontWeight:300}}>{item.a}</p>
                   </div>
                 )}
@@ -615,11 +704,11 @@ export default function Home() {
               </h2>
               <p className="text-zinc-400 text-xl mb-14 max-w-lg mx-auto leading-relaxed" style={{fontWeight:300}}>+12 000 entrepreneurs te font déjà confiance. Télécharge l'app, crée ton compte, et commence à construire.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-10">
-                <button className="group relative flex items-center gap-3 fd font-semibold text-black text-lg px-12 py-5 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_60px_rgba(220,247,99,.4)]" style={{background:'#DCF763'}}>
+                <Link href="/telecharger" className="group relative flex items-center gap-3 fd font-semibold text-black text-lg px-12 py-5 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_60px_rgba(220,247,99,.4)]" style={{background:'#DCF763'}}>
                   <span className="relative z-10">Télécharger YouthIn — Gratuit</span>
                   <ArrowRight size={20} className="relative z-10 group-hover:translate-x-1 transition-transform" />
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100" style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent)',animation:'shimmer 1.4s linear infinite'}} />
-                </button>
+                </Link>
               </div>
               <div className="flex items-center justify-center gap-8 text-zinc-700 text-sm">
                 {[{l:'App Store',d:'M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z'},{l:'Google Play',d:'M3.18 23.76c.3.17.64.17.94 0l11.24-6.42-2.37-2.37-9.81 8.79zm-1.76-20.5C1.18 3.6 1 4 1 4.56v14.88c0 .56.18.96.42 1.3l.09.08 8.33-8.33v-.2L1.42 3.26zm19.1 8.05-2.87-1.64-2.58 2.58 2.58 2.58 2.88-1.64c.82-.47.82-1.23 0-1.88zM4.12.24 15.36 6.66 12.99 9.03 3.18.24c.3-.18.64-.17.94 0z'}].map(({l,d})=>(

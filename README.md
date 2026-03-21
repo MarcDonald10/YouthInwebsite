@@ -1,6 +1,6 @@
 # YouthIn Cameroun — La Plateforme des Jeunes Entrepreneurs
 
-Bienvenue sur YouthIn, la première plateforme communautaire qui transforme les jeunes Camerounais de 18 à 35 ans en entrepreneurs accomplis.
+Bienvenue sur YouthIn, la première plateforme communautaire qui transforme les jeunes Camerounais de 18 à 28 ans en entrepreneurs accomplis.
 
 ## 🎯 À Propos
 

@@ -29,6 +29,7 @@ interface FormData {
   problem: string
   solution: string
   impact: string
+  description: string
   // Porteur
   firstName: string
   lastName: string
@@ -103,7 +104,7 @@ const STEPS_INFO = [
 const FAQ = [
   {
     q: 'La soumission est-elle gratuite ?',
-    a: 'Oui, la soumission est entièrement gratuite pour tous les membres YouthIn. Crée ton compte, vérifie ton numéro, et soumet ton projet.',
+    a: 'Oui, la soumission est entièrement gratuite pour tous les jeunes de 18 à 28 ans.',
   },
   {
     q: 'Puis-je soumettre plusieurs projets ?',
@@ -115,7 +116,7 @@ const FAQ = [
   },
   {
     q: 'Dois-je déjà avoir une entreprise existante ?',
-    a: 'Non. Les projets en phase d\'idée, prototype ou pilote sont tous acceptés. Ce qui compte c\'est la pertinence du problème résolu et la viabilité de ta solution.',
+    a: 'Non. Les projets en phase d\'idée ou prototype uniquement sont  acceptés. Ce qui compte c\'est la pertinence du problème résolu et la viabilité de ta solution.',
   },
   {
     q: 'Comment sont sélectionnés les finalistes ?',
@@ -243,7 +244,7 @@ function ProjectForm() {
     title: '', accroche: '', sector: '', stage: '', city: '', teamSize: '',
     problem: '', solution: '', impact: '',
     firstName: '', lastName: '', phone: '', email: '',
-    coverFile: null, videoUrl: '',
+    coverFile: null, videoUrl: '',description: '',
   })
 
   const set = (field: keyof FormData) => (v: any) =>
@@ -258,7 +259,7 @@ function ProjectForm() {
 
   function canNext() {
     if (step === 1) return form.title.length >= 5 && form.accroche.length >= 20 && form.sector && form.stage && form.city
-    if (step === 2) return form.problem.length >= 80 && form.solution.length >= 80 && form.impact.length >= 40
+    if (step === 2) return form.description.length >= 100 &&  form.problem.length >= 80 && form.solution.length >= 80 && form.impact.length >= 40
     if (step === 3) return form.firstName && form.lastName && form.phone.length >= 9
     return true
   }
@@ -317,7 +318,7 @@ function ProjectForm() {
           </div>
 
           <div>
-            <Label required>Titre du projet</Label>
+            <Label required>Nom du projet</Label>
             <Input
               value={form.title}
               onChange={set('title')}
@@ -392,6 +393,23 @@ function ProjectForm() {
           </div>
 
           <div>
+            <Label required>Description  générale</Label>
+            <Textarea
+              value={form.description}
+              onChange={set('description')}
+              placeholder="Mon projet consiste à ..."
+              maxLength={600}
+              rows={5}
+            />
+            <div className="flex justify-between mt-1.5">
+              <p className="text-xs text-zinc-600">Min 100 caractères — sois précis et factuel.</p>
+              {form.description.length < 100 && form.description.length > 0 && (
+                <p className="text-xs text-amber-500">Encore {100 - form.description.length} car.</p>
+              )}
+            </div>
+          </div>
+
+          <div>
             <Label required>Le problème que tu résous</Label>
             <Textarea
               value={form.problem}
@@ -407,7 +425,6 @@ function ProjectForm() {
               )}
             </div>
           </div>
-
           <div>
             <Label required>Ta solution</Label>
             <Textarea
@@ -426,7 +443,7 @@ function ProjectForm() {
           </div>
 
           <div>
-            <Label required>Impact visé</Label>
+            <Label required>Impact & résultats obtenus</Label>
             <Textarea
               value={form.impact}
               onChange={set('impact')}
@@ -760,9 +777,10 @@ export default function SubmitProjectPage() {
                 <ul className="space-y-3">
                   {[
                     '18 à 28 ans au 1er janvier 2026',
-                    'Nationalité camerounaise ou résidence légale',
+                    'Nationalité camerounaise ou résidence légale et être disponible',
                     '1 seul projet par participant',
-                    'Compte YouthIn avec numéro vérifié',
+                    'Etre disponible pour assister aux formations',
+                    'Le projet doit répondre à un besoin réel au Cameroun',
                     'Dossier complet obligatoire',
                   ].map((rule, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm">
