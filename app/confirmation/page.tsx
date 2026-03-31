@@ -171,7 +171,7 @@ export default function ConfirmationPage() {
               {[
                 {
                   q: 'When will my project be verified?',
-                  a: 'Projects are typically verified within 24 hours. You'll receive an email notification once verification is complete.',
+                  a: "Projects are typically verified within 24 hours. You'll receive an email notification once verification is complete.",
                 },
                 {
                   q: 'Can I cancel my transaction?',
