@@ -1,15 +1,15 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
+// import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { AlertCircle, ArrowRight, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 
 export default function PaymentErrorPage() {
-  const searchParams = useSearchParams()
-  const type = searchParams.get('type') || 'project'
-  const reason = searchParams.get('reason') || 'unknown'
+  // const searchParams = useSearchParams()
+  // const type = searchParams.get('type') || 'project'
+  // const reason = searchParams.get('reason') || 'unknown'
 
   const errorDetails = {
     insufficient_balance: {
@@ -56,9 +56,7 @@ export default function PaymentErrorPage() {
     },
   }
 
-  const config =
-    errorDetails[reason as keyof typeof errorDetails] ||
-    errorDetails.network_error
+  const config =errorDetails.network_error
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -114,7 +112,7 @@ export default function PaymentErrorPage() {
             {/* Actions */}
             <div className="space-y-3 mb-8">
               <Link
-                href={type === 'vote' ? '/voter' : '/soumettre'}
+                href={'/voter'}
                 className="block p-4 glass rounded-xl hover-lift transition-all flex items-center justify-between group border border-border"
               >
                 <span className="font-semibold text-foreground">

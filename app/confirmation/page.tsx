@@ -1,6 +1,6 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
+// import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { CheckCircle, Copy, Download, Share2, ArrowRight } from 'lucide-react'
@@ -8,13 +8,13 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 export default function ConfirmationPage() {
-  const searchParams = useSearchParams()
-  const type = searchParams.get('type') || 'project'
-  const transactionId = searchParams.get('tx') || 'TXN_12345678'
+  // const searchParams = useSearchParams()
+  // const type = searchParams.get('type') || 'project'
+  // const transactionId = searchParams.get('tx') || 'TXN_12345678'
   const [copied, setCopied] = useState(false)
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(transactionId)
+    // navigator.clipboard.writeText(transactionId)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -53,9 +53,10 @@ export default function ConfirmationPage() {
     },
   }
 
-  const config = confirmationData[type as keyof typeof confirmationData] || confirmationData.project
+  const config =  confirmationData.project
 
   return (
+    
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main className="pt-24 pb-16">
@@ -91,7 +92,7 @@ export default function ConfirmationPage() {
                 </p>
                 <div className="flex items-center justify-between gap-4 p-4 bg-card rounded-lg">
                   <code className="font-mono text-accent font-semibold">
-                    {transactionId}
+                    {/* {transactionId} */}
                   </code>
                   <button
                     onClick={copyToClipboard}
