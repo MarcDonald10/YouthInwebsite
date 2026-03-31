@@ -25,8 +25,8 @@ const MOCK_PROJECTS: Project[] = [
   },
   {
     id: '2',
-    title: 'TechServices BTP',
-    description: 'Plateforme de mise en relation entre techniciens BTP certifiés et particuliers à Douala. Garantie solidaire entre techniciens — 0 client insatisfait depuis le lancement.',
+    title: 'Zhilak',
+    description: 'Plateforme de services digitaux à la demande pour PME camerounaises : comptabilité, marketing, RH, IT. 150 prestataires inscrits, 30 PME clientes dans les 3 premiers mois.',
     category: 'Tech/Digital',
     founderName: 'Donald Baliaba',
     image: '/illustration-vote.jpg',
