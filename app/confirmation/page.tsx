@@ -187,7 +187,7 @@ export default function ConfirmationPage() {
                 },
                 {
                   q: 'What if my payment fails?',
-                  a: 'If payment fails, you'll see an error message. Please try again with the same or different payment method.',
+                  a: "If payment fails, you'll see an error message. Please try again with the same or different payment method.",
                 },
               ].map((faq, i) => (
                 <details
