@@ -142,7 +142,7 @@ const TESTIMONIALS = [
 
 const LEADERBOARD = [
   { rank: 1, name: 'AgriConnect Cameroun', founder: 'Fatima Mbarga', sector: 'AgriTech', votes: 3847, delta: '+284', color: '#F59E0B', av: 'FM' },
-  { rank: 2, name: 'TechServices BTP', founder: 'Donald Baliaba', sector: 'Tech/Digital', votes: 2841, delta: '+156', color: '#DCF763', av: 'DB' },
+  { rank: 2, name: 'Kinaru', founder: 'Donald Baliaba', sector: 'Tech/Digital', votes: 2841, delta: '+156', color: '#DCF763', av: 'DB' },
   { rank: 3, name: 'MediCam Téléconsult.', founder: 'Dr. Sarah Fotso', sector: 'Santé', votes: 2103, delta: '+98', color: '#EC4899', av: 'SF' },
   { rank: 4, name: 'EcoTextile Cameroun', founder: 'Amina Ngassa', sector: 'Mode', votes: 1924, delta: '+67', color: '#8B5CF6', av: 'AN' },
   { rank: 5, name: 'SolarKit Rural', founder: 'E. Tchouata', sector: 'Énergie', votes: 1587, delta: '+45', color: '#14B8A6', av: 'ET' },
