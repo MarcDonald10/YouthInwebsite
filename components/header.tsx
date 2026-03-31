@@ -30,7 +30,12 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">Y</span>
+              
+              <img
+                src={'/logo-icon-black.png'}
+                alt="YouthIn Logo"
+                className="w-5 h-5"
+              />
             </div>
             <span className="font-bold text-xl text-accent hidden sm:inline">YouthIn</span>
           </Link>
@@ -43,19 +48,17 @@ export function Header() {
                 <Link
                   key={href}
                   href={href}
-                  className={`relative py-1 text-sm font-medium transition-colors duration-300 group ${
-                    active
+                  className={`relative py-1 text-sm font-medium transition-colors duration-300 group ${active
                       ? 'text-accent'
                       : 'text-foreground hover:text-accent'
-                  }`}
+                    }`}
                 >
                   {label}
 
                   {/* Soulignement animé */}
                   <span
-                    className={`absolute bottom-0 left-0 h-0.5 bg-accent rounded-full transition-all duration-300 ${
-                      active ? 'w-full' : 'w-0 group-hover:w-full'
-                    }`}
+                    className={`absolute bottom-0 left-0 h-0.5 bg-accent rounded-full transition-all duration-300 ${active ? 'w-full' : 'w-0 group-hover:w-full'
+                      }`}
                   />
 
                   {/* Point actif sous le lien */}
@@ -71,11 +74,10 @@ export function Header() {
           <div className="hidden lg:flex items-center gap-3">
             <Link href="/soumettre">
               <Button
-                className={`transition-all ${
-                  isActive('/soumettre')
+                className={`transition-all ${isActive('/soumettre')
                     ? 'bg-accent/80 text-primary-foreground ring-2 ring-accent ring-offset-2 ring-offset-background'
                     : 'bg-accent text-primary-foreground hover:bg-accent/90'
-                }`}
+                  }`}
               >
                 Soumettre
               </Button>
@@ -83,11 +85,10 @@ export function Header() {
             <Link href="/voter">
               <Button
                 variant="outline"
-                className={`transition-all ${
-                  isActive('/voter')
+                className={`transition-all ${isActive('/voter')
                     ? 'border-accent bg-accent/10 text-accent ring-2 ring-accent ring-offset-2 ring-offset-background'
                     : 'border-accent text-accent hover:bg-accent/10'
-                }`}
+                  }`}
               >
                 Voter
               </Button>
@@ -113,17 +114,15 @@ export function Header() {
                   key={href}
                   href={href}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
-                    active
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${active
                       ? 'bg-accent/15 text-accent font-semibold'
                       : 'text-foreground hover:text-accent hover:bg-accent/5'
-                  }`}
+                    }`}
                 >
                   {/* Barre latérale active */}
                   <span
-                    className={`w-1 h-4 rounded-full transition-all ${
-                      active ? 'bg-accent' : 'bg-transparent'
-                    }`}
+                    className={`w-1 h-4 rounded-full transition-all ${active ? 'bg-accent' : 'bg-transparent'
+                      }`}
                   />
                   {label}
                 </Link>
@@ -150,7 +149,7 @@ export function Header() {
       </header>
 
       {/* Banner Contest */}
-      <div className="hidden lg:block fixed top-20 left-0 right-0 z-40 bg-green-600/20 border-b border-green-600/50 backdrop-blur-sm">
+      {/* <div className="hidden lg:block fixed top-20 left-0 right-0 z-40 bg-green-600/20 border-b border-green-600/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between text-sm">
           <span className="text-foreground">
             ✨ Le vote public est ouvert ! Soutiens ton projet préféré —{' '}
@@ -160,7 +159,7 @@ export function Header() {
           </span>
           <button className="text-muted-foreground hover:text-foreground">×</button>
         </div>
-      </div>
+      </div> */}
     </>
   )
 }

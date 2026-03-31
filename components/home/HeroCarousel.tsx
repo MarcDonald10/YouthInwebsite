@@ -114,7 +114,7 @@ export function HeroCarousel() {
 
   return (
     <section
-      className="relative w-full overflow-hidden select-none"
+      className="relative w-full overflow-hidden select-none mt-5"
       style={{ height: '100svh', minHeight: 600, maxHeight: 980, backgroundColor: '#030303' }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
